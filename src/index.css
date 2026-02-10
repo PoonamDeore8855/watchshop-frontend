@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+html,
+body {
+  height: auto;
+  overflow-y: auto;
+}
+
+.brand-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.brand-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: brandScroll 15s linear infinite;
+}
+
+@keyframes brandScroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 🚨 FORCE NAVBAR VISIBILITY 🚨 */
+header {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 2px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+header a,
+header button,
+header span {
+  color: #000000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-weight: 900 !important;
+}
+
+.nav-link-active,
+.nav-menu a.active {
+  color: #7c3aed !important;
+  background-color: #f3f4f6 !important;
+}
