@@ -146,7 +146,10 @@ export default function Wishlist() {
                   className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
                 >
                   {/* Product Image */}
-                  <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                  <div
+                    className="relative aspect-square bg-gray-50 overflow-hidden cursor-pointer"
+                    onClick={() => navigate("/watchdetails", { state: { product: item } })}
+                  >
                     <img
                       src={item.image}
                       alt={item.name}
@@ -164,7 +167,10 @@ export default function Wishlist() {
 
                   {/* Product Details */}
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition">
+                    <h3
+                      className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition cursor-pointer"
+                      onClick={() => navigate("/watchdetails", { state: { product: item } })}
+                    >
                       {item.name}
                     </h3>
 

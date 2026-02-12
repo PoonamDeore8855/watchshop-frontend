@@ -35,11 +35,14 @@ const Reviews = ({ productId }) => {
 
         setIsSubmitting(true);
         try {
+            const token = localStorage.getItem("token") || localStorage.getItem("adminToken");
             await axios.post("/api/reviews", {
                 productId: productId,
                 userId: user.id,
                 rating: rating,
                 comment: comment
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
             setComment("");
             setRating(5);

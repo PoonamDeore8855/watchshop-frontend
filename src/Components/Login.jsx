@@ -31,6 +31,8 @@ const Login = () => {
         localStorage.setItem("adminEmail", adminRes.data.email);
         localStorage.setItem("user", JSON.stringify({ email: adminRes.data.email, role: 'ADMIN' }));
         localStorage.setItem("admin", "true");
+        localStorage.removeItem("token"); // Clear user token
+        window.dispatchEvent(new Event("authUpdated"));
         navigate("/admin/dashboard");
       } else {
         // 2️⃣ USER LOGIN
@@ -41,6 +43,10 @@ const Login = () => {
 
         localStorage.setItem("token", userRes.data.token);
         localStorage.setItem("user", JSON.stringify(userRes.data.user));
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminEmail");
+        localStorage.removeItem("admin");
+        window.dispatchEvent(new Event("authUpdated"));
         navigate(redirectTo);
       }
     } catch (err) {
@@ -67,6 +73,7 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      window.dispatchEvent(new Event("authUpdated"));
       navigate(redirectTo);
     } catch (err) {
       console.error("Google Login Error:", err);

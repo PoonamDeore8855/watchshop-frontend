@@ -11,14 +11,15 @@ export default function Main() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 🔐 SAFE logged-in user
-  let user = null;
-  try {
-    const storedUser = localStorage.getItem("user");
-    user = storedUser ? JSON.parse(storedUser) : null;
-  } catch (e) {
-    user = null;
-  }
+  // 🔐 SAFE logged-in user state
+  const [userState, setUserState] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (e) {
+      return null;
+    }
+  });
 
   // 🛡️ Admin check
   const isAdmin = localStorage.getItem("admin") === "true";
@@ -33,14 +34,32 @@ export default function Main() {
       }
     };
 
-    loadCart();
+    const loadUser = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        setUserState(storedUser ? JSON.parse(storedUser) : null);
+      } catch (e) {
+        setUserState(null);
+      }
+    };
 
-    window.addEventListener("storage", loadCart);
+    loadCart();
+    loadUser();
+
+    window.addEventListener("storage", () => {
+      loadCart();
+      loadUser();
+    });
     window.addEventListener("cartUpdated", loadCart);
+    window.addEventListener("authUpdated", loadUser);
 
     return () => {
-      window.removeEventListener("storage", loadCart);
+      window.removeEventListener("storage", () => {
+        loadCart();
+        loadUser();
+      });
       window.removeEventListener("cartUpdated", loadCart);
+      window.removeEventListener("authUpdated", loadUser);
     };
   }, []);
 
@@ -92,6 +111,7 @@ export default function Main() {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminEmail");
     localStorage.removeItem("admin");
+    window.dispatchEvent(new Event("authUpdated"));
     navigate("/login");
   };
 
@@ -132,7 +152,7 @@ export default function Main() {
 
           {/* ========== CENTER NAVIGATION ========== */}
           <nav className="hidden md:flex items-center gap-2 nav-menu flex-1 justify-center px-8">
-            {[
+            {!isAdmin && [
               { path: "/", label: "Home" },
               { path: "/watches", label: "Watches" },
               { path: "/brands", label: "Brands" },
@@ -175,7 +195,7 @@ export default function Main() {
             </button>
 
             {/* User Menu */}
-            {!user ? (
+            {!userState ? (
               <Link
                 to="/login"
                 className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold text-sm hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
@@ -187,15 +207,17 @@ export default function Main() {
               </Link>
             ) : (
               <div className="hidden md:flex items-center gap-2">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center gap-2 px-5 py-2.5 text-black hover:bg-gray-50 rounded-full font-black text-[10px] uppercase tracking-widest transition-all italic border border-transparent hover:border-gray-100"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Profile
-                </Link>
+                {!isAdmin && (
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center gap-2 px-5 py-2.5 text-black hover:bg-gray-50 rounded-full font-black text-[10px] uppercase tracking-widest transition-all italic border border-transparent hover:border-gray-100"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-5 py-2.5 text-red-600 hover:bg-red-50 rounded-full font-black text-[10px] uppercase tracking-widest transition-all italic border border-transparent hover:border-red-100"
@@ -218,18 +240,20 @@ export default function Main() {
             )}
 
             {/* Wishlist */}
-            <Link
-              to="/wishlist"
-              className="relative flex items-center justify-center w-10 h-10 text-black hover:text-red-600 hover:bg-red-50/50 border border-transparent hover:border-red-100 rounded-full transition-all"
-              aria-label="Wishlist"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </Link>
+            {!isAdmin && (
+              <Link
+                to="/wishlist"
+                className="relative flex items-center justify-center w-10 h-10 text-black hover:text-red-600 hover:bg-red-50/50 border border-transparent hover:border-red-100 rounded-full transition-all"
+                aria-label="Wishlist"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </Link>
+            )}
 
             {/* Cart Icon */}
-            <AddToCartIcon cartItems={cartItems} />
+            {!isAdmin && <AddToCartIcon cartItems={cartItems} />}
 
             {/* Mobile Menu Button */}
             <button
@@ -276,7 +300,7 @@ export default function Main() {
             ))}
 
             <div className="border-t border-gray-100 pt-2 mt-2">
-              {!user ? (
+              {!userState ? (
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}

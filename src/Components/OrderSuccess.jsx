@@ -97,7 +97,7 @@ export default function OrderSuccess() {
   ];
 
   return (
-    <div className="pt-28 pb-20 min-h-screen bg-[#fcfcfc] flex flex-col items-center px-4 animate-in fade-in duration-1000">
+    <div className="pt-28 pb-20 min-h-screen bg-[#fcfcfc] flex flex-col items-center px-4 animate-in fade-in duration-300">
       <div className="max-w-4xl w-full">
 
         {/* Header Section */}

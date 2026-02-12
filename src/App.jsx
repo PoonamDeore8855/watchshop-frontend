@@ -29,7 +29,25 @@ import AdminProfile from "./admin/AdminProfile";
 import AdminCoupons from "./admin/AdminCoupons";
 import AdminTransactions from "./admin/AdminTransactions";
 
+// 🛡️ PROTECTED ROUTE COMPONENT
+const ProtectedRoute = ({ children, role }) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = localStorage.getItem("admin") === "true";
 
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role === "ADMIN" && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (role === "USER" && isAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  return children;
+};
 function Layout() {
   const location = useLocation();
   // Hide main navbar for admin panel or specific pages if needed
@@ -55,17 +73,17 @@ function Layout() {
         <Route path="/register" element={<Register />} />
 
         {/* USER ROUTES */}
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/ordersuccess" element={<OrderSuccess />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/myorders" element={<MyOrders />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/cart" element={<ProtectedRoute role="USER"><Cart /></ProtectedRoute>} />
+        <Route path="/checkout" element={<ProtectedRoute role="USER"><Checkout /></ProtectedRoute>} />
+        <Route path="/ordersuccess" element={<ProtectedRoute role="USER"><OrderSuccess /></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute role="USER"><Wishlist /></ProtectedRoute>} />
+        <Route path="/myorders" element={<ProtectedRoute role="USER"><MyOrders /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute role="USER"><Dashboard /></ProtectedRoute>} />
 
         {/* ADMIN ROUTES */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={<ProtectedRoute role="ADMIN"><AdminLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="products" element={<AdminProducts />} />
